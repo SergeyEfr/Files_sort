@@ -7,5 +7,5 @@ using namespace std;
 
 class Logger {
 public:
-	void printlog(vector<string>& arr_str, map <string, string>& type_storage, map<string, int>& byte_storage);
+	static void printlog(vector<string>& arr_str, map <string, string>& type_storage, map<string, int>& byte_storage);
 };

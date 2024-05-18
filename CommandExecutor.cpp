@@ -2,7 +2,7 @@
 #include <string>
 using namespace std;
 
-string CommandExecutor::execute(string command) {
+string CommandExecutor::execute(const string &command) {
     char buffer[128];
     string result = "";
 

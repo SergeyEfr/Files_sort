@@ -8,13 +8,13 @@
 
 class FileProcessor {
 public:
-    int most_often_byte(string path);
-    void store_file_types(CommandExecutor& obj2, vector<string>& arr_str, string path);
-    void files_sort(string path);
+    static int most_often_byte(const string &path);
+    void store_file_types(CommandExecutor &obj2, const vector<string> &arr_str, const string &path);
+    void files_sort(const string &path);
     map <string, string> type_storage;
+    static vector<string> get_file_names(const string& path, CommandExecutor &obj);
+    
 private:
-    vector<string>f_types;
-    vector <string>::iterator iter;
-    map <string, string> type_to_directory;
+    vector<string> __f_types;
     
 };

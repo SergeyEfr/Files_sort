@@ -1,11 +1,11 @@
 #include"FileProcessor.h"
 using namespace std;
 
-void FileProcessor::store_file_types(CommandExecutor& obj2, vector<string>& arr_str, string path) {
+void FileProcessor::store_file_types(CommandExecutor &obj2, const vector<string> &arr_str, const string &path) {
     cout << "The List of files in the got vector: " << endl;
-    for (iter = arr_str.begin(); iter != arr_str.end(); ++iter) {
+    
+    for ( const string &line: arr_str) {
 
-        string line = *iter;
         string command_2 = "file " + path + "/" + line;
         cout << "command_2: " << command_2 << endl;
         string file = obj2.execute(command_2);
@@ -26,47 +26,30 @@ void FileProcessor::store_file_types(CommandExecutor& obj2, vector<string>& arr_
             idx_end = file.find(',', idx);
         }
         idx = idx + 2;
-        idx_end = idx_end - 1;
-        string file_type;
-        int i = idx;
-        for (i = idx; i <= idx_end; i++) {
-            file_type += file[i];
-        }
-
+        
+        string file_type = file.substr(idx, idx_end - idx);
         type_storage[line] = file_type;
 
-        if (find(f_types.begin(), f_types.end(), file_type) == f_types.end()) {
-            f_types.push_back(file_type);
+        if (find(__f_types.begin(), __f_types.end(), file_type) == __f_types.end()) {
+            __f_types.push_back(file_type);
         }
         cout << "Type of file " << line << ": " << file_type << endl;
         cout << '\n';
 
     }
     cout << "All file types saved in the vector: " << endl;
-    for (iter = f_types.begin(); iter != f_types.end(); ++iter) {
+    vector<string>::iterator iter;
+    for (iter = __f_types.begin(); iter != __f_types.end(); ++iter) {
         cout << *iter << endl;
     }
 }
 
-void FileProcessor::files_sort(string path) {
-    char sep = ' ';
-    for (iter = f_types.begin(); iter != f_types.end(); ++iter) {
-        string line = *iter;
-        string s;
-        int i = 0;
-        while (line[i] != '\0') {
-            if (line[i] != sep) {
-                s += line[i];
-            }
-
-            else {
-                s += '_';
-
-            }
-
-            i++;
-
-        }
+void FileProcessor::files_sort(const string &path) {
+    map <string, string> type_to_directory;
+    for (const string &line: __f_types) {
+        string s = line;
+        replace(s.begin(), s.end(), ' ', '_');
+  
         cout << "s: " + s << endl;
         string path_new_directory = path + "/" + s;
         type_to_directory[line] = path_new_directory;
@@ -76,7 +59,7 @@ void FileProcessor::files_sort(string path) {
         system(command_3_char);
     }
     string type;
-    for (const auto& element : type_storage) {
+    for (const auto &element : type_storage) {
 
         type = element.second;
         string command_4 = "mv " + path + "/" + element.first + " " + type_to_directory[type];
@@ -86,7 +69,34 @@ void FileProcessor::files_sort(string path) {
     }
 }
 
-int FileProcessor::most_often_byte(string path) {
+vector<string> FileProcessor::get_file_names(const string& path, CommandExecutor &obj)
+{
+    vector<string> file_names;
+    string command_1 = "ls " + path;
+    cout << "command_1: " << command_1 << endl;
+    string files_list = obj.execute(command_1);
+    cout << "files_list: " << files_list << endl;
+
+    char separator = '\n';
+    
+    string s;
+    for (char c : files_list) {
+        if (c != separator) {
+            s += c;
+        }
+
+        else {
+
+            file_names.push_back(s);
+            s.clear();
+
+        }
+    }
+    
+    return file_names;
+}
+
+int FileProcessor::most_often_byte(const string &path) {
     string path_to_file = path;
     cout << "path_to_file: " << path_to_file << endl;
     unsigned char ch = ' '; //  тут будет байт
@@ -107,11 +117,10 @@ int FileProcessor::most_often_byte(string path) {
     }
     file2.close();
     pair<unsigned int, int> result = { 0, 0 };
-
+    
     int p = 0;
-    for (v_iter = vbyte.begin(); v_iter != vbyte.end(); ++v_iter) {
-        unsigned int num = *v_iter;
-
+    for (unsigned int &num: vbyte) {
+     
         if (result.first < num) {
             result = make_pair(num, p);
         }
