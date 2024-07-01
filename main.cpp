@@ -5,35 +5,39 @@
 #include<clocale>
 using namespace std;
 
-int main()
+int main(int argc, char *argv[])
 {
-    setlocale(LC_ALL, "");
-    string files_path;
-    cout << "Введите путь до директории: " << endl;
-    getline(cin, files_path);
-
-    vector<string> file_names;
-    vector<string>::iterator iter;
-
-    CommandExecutor obj;
-    file_names = FileProcessor::get_file_names(files_path, obj);
-
-    FileProcessor file_processor;
-    
-    map<string, int> byte_storage;
-    for (const string &line: file_names) {
-        string file_path = files_path + "/" + line;
-        int often_byte = file_processor.most_often_byte(file_path);
-        byte_storage[line] = often_byte;
-        cout << "Самый частый байт в файле : " + line + ": " << hex << byte_storage[line] << endl;
-        cout << '\n';
+    string arg = argv[1];
+    if (arg == "sort") 
+    {
+        FileProcessor file_processor;
+        file_processor.sort_actions();
+        
     }
-
-    file_processor.store_file_types(obj, file_names, files_path);
-    file_processor.files_sort(files_path);
-    map <string, string> t_storage = file_processor.type_storage;
-    Logger obj_l;
-    obj_l.printlog( file_names, t_storage, byte_storage);
+    else if (arg == "xor_encrypt")
+    {
+        FileProcessor file_processor;
+        file_processor.xor_cipher_actions();
+    }
+    else if (arg == "xor_decrypt")
+    {
+        FileProcessor file_processor;
+        file_processor.xor_decipher_actions();
+    }
+    else if (arg == "bit_encrypt")
+    {
+        FileProcessor file_processor;
+        file_processor.bit_cipher_actions();
+    }
+    else if (arg == "bit_decrypt")
+    {
+        FileProcessor file_processor;
+        file_processor.bit_decipher_actions();
+    }
+    else
+    {
+        cerr << "Unknown mode: " << arg << endl;
+    }
 
     return 0;
 }

@@ -23,3 +23,20 @@ void Logger::printlog(vector<string> &arr_str, map <string, string> &type_storag
     }
     out.close();
 }
+
+void Logger::cipher_printlog(pair<string, string> &encrypted_files) {
+    string write_path;
+    string file_name = encrypted_files.first;
+    string cipher_type = encrypted_files.second;
+    cout << "Enter the path where to write the received information about the files: " << endl;
+    cin >> write_path;
+    ofstream out;
+    out.open(write_path);
+
+    if (out.is_open())
+    {
+        out << "File " << file_name << " is encrypted with " << cipher_type << endl;
+        out << '\n';
+    }
+    out.close();
+}

@@ -1,4 +1,5 @@
 #include"FileProcessor.h"
+
 using namespace std;
 
 void FileProcessor::store_file_types(CommandExecutor &obj2, const vector<string> &arr_str, const string &path) {
@@ -129,3 +130,212 @@ int FileProcessor::most_often_byte(const string &path) {
 
     return result.second;
 }
+
+void FileProcessor::sort_actions()
+{
+    setlocale(LC_ALL, "");
+    string files_path;
+    cout << "Enter the to directory: " << endl;
+    cin >> files_path;
+    cout << "\n";
+    vector<string> file_names;
+    vector<string>::iterator iter;
+
+    CommandExecutor obj;
+    file_names = FileProcessor::get_file_names(files_path, obj);
+
+    FileProcessor file_processor;
+
+    map<string, int> byte_storage;
+    for (const string& line : file_names) {
+        string file_path = files_path + "/" + line;
+        int often_byte = file_processor.most_often_byte(file_path);
+        byte_storage[line] = often_byte;
+        cout << "The most frequent byte in the file : " + line + ": " << hex << byte_storage[line] << endl;
+        cout << '\n';
+    }
+
+    file_processor.store_file_types(obj, file_names, files_path);
+    file_processor.files_sort(files_path);
+    map <string, string> t_storage = file_processor.type_storage;
+    Logger obj_l;
+    obj_l.printlog(file_names, t_storage, byte_storage);
+}
+
+void FileProcessor::file_cipher(const string &path_to_read, const string &path_to_write, char key) {
+    string file_for_write = path_to_write;
+    string file_for_read = path_to_read;
+    
+    ifstream in(file_for_read, ios::binary | ios::in);
+    if (in.is_open()) {
+        cout << "File was opend!" << endl;
+    }
+    else {
+        cout << "File was not opend!" << endl;
+    }
+
+    ofstream out(file_for_write, ios::binary | ios::out);
+    if (out.is_open()) {
+        cout << "File was opend!" << endl;
+    }
+    else {
+        cout << "File was not opend!" << endl;
+    }
+    char Key = key;
+    char ch = ' ';
+    while (in.read((char*) &ch, 1))// считываем побайтно
+    {
+        ch = ch ^ Key;
+        out.write((char*) &ch, 1);
+    }
+    in.close();
+    out.close();
+}
+
+void FileProcessor::xor_cipher_actions()
+{
+    string path_to_read;
+    string path_to_write;
+    char key;
+    FileProcessor file_processor;
+    cout << "Enter the path to the file you want to encrypt : " << endl;
+    cin >> path_to_read;
+    cout << "Enter the path to the file where you want to write the encrypted file: " << endl;
+    cin >> path_to_write;
+    cout << "Enter the key for xor cipher: " << endl;
+    cin >> key;
+    file_processor.file_cipher(path_to_read, path_to_write, key);
+    pair<string, string> encrypted_storage = {path_to_read, "xor"};
+    Logger obj;
+    obj.cipher_printlog(encrypted_storage);
+}
+
+void FileProcessor::xor_decipher_actions()
+{
+    string path_to_read;
+    string path_to_write;
+    char key;
+    FileProcessor file_processor;
+    cout << "Enter the path to the file you want to decrypt: " << endl;
+    cin >> path_to_read;
+    cout << "Enter the path to the file where you want to write the decrypted file: " << endl;
+    cin >> path_to_write;
+    cout << "Enter the key for xor decipher: " << endl;
+    cin >> key;
+    file_processor.file_cipher(path_to_read, path_to_write, key);
+}
+
+void FileProcessor::bit_cipher_actions()
+{
+    string path_to_read;
+    string path_to_write;
+    int shift_bits;
+    FileProcessor file_processor;
+    cout << "Enter the path to the file you want to encrypt : " << endl;
+    cin >> path_to_read;
+    cout << "Enter the path to the file where you want to write the encrypted file: " << endl;
+    cin >> path_to_write;
+    cout << "Enter the shift of bits: " << endl;
+    cin >> shift_bits;
+    file_processor.file_bit_cipher(path_to_read, path_to_write, shift_bits);
+    pair<string, string> encrypted_storage = { path_to_read, "bit_shift" };
+    Logger obj;
+    obj.cipher_printlog(encrypted_storage);
+}
+
+void FileProcessor::bit_decipher_actions()
+{
+    string path_to_read;
+    string path_to_write;
+    int shift_bits;
+    FileProcessor file_processor;
+    cout << "Enter the path to the file you want to decrypt: " << endl;
+    cin >> path_to_read;
+    cout << "Enter the path to the file where you want to write the decrypted file: " << endl;
+    cin >> path_to_write;
+    cout << "Enter the shift of bits: " << endl;
+    cin >> shift_bits;
+    file_processor.file_bit_decipher(path_to_read, path_to_write, shift_bits);
+}
+
+void FileProcessor::file_bit_cipher(const string& path_read, const string& path_write, int sh)
+{
+    string file_for_write = path_write;
+    string file_for_read = path_read;
+
+    ifstream in(file_for_read, ios::binary | ios::in);
+    if (in.is_open()) {
+        cout << "File was opend!" << endl;
+    }
+    else {
+        cout << "File was not opend!" << endl;
+    }
+
+    ofstream out(file_for_write, ios::binary | ios::out);
+    if (out.is_open()) {
+        cout << "File was opend!" << endl;
+    }
+    else {
+        cout << "File was not opend!" << endl;
+    }
+    
+    char ch = ' ';
+    while (in.read((char*)&ch, 1))// считываем побайтно
+    {
+        uint8_t byte = uint8_t(ch); // значение байта
+        int shift = sh; // значение сдвига
+        shift = shift % 8; // сдвиг не должен быть больше 8
+       
+        // Ўифрование (циклический сдвиг влево)
+        byte = (byte << shift) | (byte >> (8 - shift));
+        ch = char(byte);
+        
+        out.write((char*)&ch, 1);
+    }
+    
+    in.close();
+    out.close();
+
+};
+
+
+void FileProcessor::file_bit_decipher(const string& path_read, const string& path_write, int sh)
+{
+    string file_for_write = path_write;
+    string file_for_read = path_read;
+    
+    ifstream in(file_for_read, ios::binary | ios::in);
+    if (in.is_open()) {
+        cout << "File was opend!" << endl;
+    }
+    else {
+        cout << "File was not opend!" << endl;
+    }
+
+    ofstream out(file_for_write, ios::binary | ios::out);
+    if (out.is_open()) {
+        cout << "File was opend!" << endl;
+    }
+    else {
+        cout << "File was not opend!" << endl;
+    }
+
+    char ch = ' ';
+    while (in.read((char*)&ch, 1))// считываем побайтно
+    {
+        uint8_t byte = uint8_t(ch); // значение байта
+        int shift = sh; // значение сдвига
+        shift = shift % 8; // сдвиг не должен быть больше 8
+        
+        // ƒешифрование (циклический сдвиг вправо)
+        byte = (byte >> shift) | (byte << (8 - shift));
+        ch = char(byte);
+        
+        out.write((char*)&ch, 1);
+    }
+
+    in.close();
+    out.close();
+
+};
+
