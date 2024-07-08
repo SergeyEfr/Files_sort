@@ -111,7 +111,7 @@ int FileProcessor::most_often_byte(const string &path) {
     else {
         cout << "File was not opend!" << endl;
     }
-    while (file2.read((char*)&ch, 1))// считываем побайтно
+    while (file2.read((char*)&ch, 1)) // считываем побайтно
     {
         vbyte[(unsigned int)ch]++;
         
