@@ -288,11 +288,8 @@ void FileProcessor::file_bit_cipher(const string& path_read, const string& path_
 
 
 void FileProcessor::file_bit_decipher(const string& path_read, const string& path_write, int sh)
-{
-    string file_for_write = path_write;
-    string file_for_read = path_read;
-    
-    ifstream in(file_for_read, ios::binary | ios::in);
+{ 
+    ifstream in(path_read, ios::binary | ios::in);
     if (in.is_open()) {
         cout << "File was opend!" << endl;
     }
@@ -300,7 +297,7 @@ void FileProcessor::file_bit_decipher(const string& path_read, const string& pat
         cout << "File was not opend!" << endl;
     }
 
-    ofstream out(file_for_write, ios::binary | ios::out);
+    ofstream out(path_write, ios::binary | ios::out);
     if (out.is_open()) {
         cout << "File was opend!" << endl;
     }
