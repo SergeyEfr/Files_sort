@@ -2,14 +2,15 @@
 
 using namespace std;
 
-void FileProcessor::store_file_types(CommandExecutor &obj2, const vector<string> &arr_str, const string &path) {
+void FileProcessor::store_file_types( const vector<string> &arr_str, const string &path) {
     cout << "The List of files in the got vector: " << endl;
     
     for ( const string &line: arr_str) {
+        string command_2 = "file ";
 
-        string command_2 = "file " + path + "/" + line;
+        command_2.append(path).append("/").append(line);
         cout << "command_2: " << command_2 << endl;
-        string file = obj2.execute(command_2);
+        string file = CommandExecutor::execute(command_2);
         cout << file << endl;
         int idx = 0;
         int idx_end = 0;
@@ -52,7 +53,8 @@ void FileProcessor::files_sort(const string &path) {
         replace(s.begin(), s.end(), ' ', '_');
   
         cout << "s: " + s << endl;
-        string path_new_directory = path + "/" + s;
+        string path_new_directory = path;
+        path_new_directory.append("/").append(s);
         type_to_directory[line] = path_new_directory;
         cout << "path_new_directory: " + path_new_directory << "\n" << endl;
         string command_3 = "mkdir " + path_new_directory;
@@ -70,12 +72,12 @@ void FileProcessor::files_sort(const string &path) {
     }
 }
 
-vector<string> FileProcessor::get_file_names(const string& path, CommandExecutor &obj)
+vector<string> FileProcessor::get_file_names(const string &path)
 {
     vector<string> file_names;
     string command_1 = "ls " + path;
     cout << "command_1: " << command_1 << endl;
-    string files_list = obj.execute(command_1);
+    string files_list = CommandExecutor::execute(command_1);
     cout << "files_list: " << files_list << endl;
 
     char separator = '\n';
@@ -98,13 +100,11 @@ vector<string> FileProcessor::get_file_names(const string& path, CommandExecutor
 }
 
 int FileProcessor::most_often_byte(const string &path) {
-    string path_to_file = path;
-    cout << "path_to_file: " << path_to_file << endl;
+    cout << "path_to_file: " << path << endl;
     unsigned char ch = ' '; //  тут будет байт
     vector<unsigned int> vbyte(256, 0); // индекс - код байта, содержимое - количество вхождений
-    vector<unsigned int>::iterator v_iter;
     ifstream file2;
-    file2.open(path_to_file, ios::in | ios::binary);
+    file2.open(path, ios::in | ios::binary);
     if (file2.is_open()) {
         cout << "File was opend!" << endl;
     }
@@ -139,34 +139,29 @@ void FileProcessor::sort_actions()
     cin >> files_path;
     cout << "\n";
     vector<string> file_names;
-    vector<string>::iterator iter;
-
-    CommandExecutor obj;
-    file_names = FileProcessor::get_file_names(files_path, obj);
-
+    file_names = FileProcessor::get_file_names(files_path);
     FileProcessor file_processor;
 
     map<string, int> byte_storage;
     for (const string& line : file_names) {
-        string file_path = files_path + "/" + line;
+        string file_path = files_path;
+        file_path.append("/").append(line);
         int often_byte = file_processor.most_often_byte(file_path);
         byte_storage[line] = often_byte;
         cout << "The most frequent byte in the file : " + line + ": " << hex << byte_storage[line] << endl;
         cout << '\n';
     }
 
-    file_processor.store_file_types(obj, file_names, files_path);
+    file_processor.store_file_types(file_names, files_path);
     file_processor.files_sort(files_path);
     map <string, string> t_storage = file_processor.type_storage;
-    Logger obj_l;
-    obj_l.printlog(file_names, t_storage, byte_storage);
+    
+    Logger::printlog(file_names, t_storage, byte_storage);
 }
 
-void FileProcessor::file_cipher(const string &path_to_read, const string &path_to_write, char key) {
-    string file_for_write = path_to_write;
-    string file_for_read = path_to_read;
+void FileProcessor::file_cipher(const string &path_read, const string &path_write, char key) {
     
-    ifstream in(file_for_read, ios::binary | ios::in);
+    ifstream in(path_read, ios::binary | ios::in);
     if (in.is_open()) {
         cout << "File was opend!" << endl;
     }
@@ -174,7 +169,7 @@ void FileProcessor::file_cipher(const string &path_to_read, const string &path_t
         cout << "File was not opend!" << endl;
     }
 
-    ofstream out(file_for_write, ios::binary | ios::out);
+    ofstream out(path_write, ios::binary | ios::out);
     if (out.is_open()) {
         cout << "File was opend!" << endl;
     }
@@ -206,8 +201,7 @@ void FileProcessor::xor_cipher_actions()
     cin >> key;
     file_processor.file_cipher(path_to_read, path_to_write, key);
     pair<string, string> encrypted_storage = {path_to_read, "xor"};
-    Logger obj;
-    obj.cipher_printlog(encrypted_storage);
+    Logger::cipher_printlog(encrypted_storage);
 }
 
 void FileProcessor::xor_decipher_actions()
@@ -230,17 +224,15 @@ void FileProcessor::bit_cipher_actions()
     string path_to_read;
     string path_to_write;
     int shift_bits;
-    FileProcessor file_processor;
     cout << "Enter the path to the file you want to encrypt : " << endl;
     cin >> path_to_read;
     cout << "Enter the path to the file where you want to write the encrypted file: " << endl;
     cin >> path_to_write;
     cout << "Enter the shift of bits: " << endl;
     cin >> shift_bits;
-    file_processor.file_bit_cipher(path_to_read, path_to_write, shift_bits);
+    FileProcessor::file_bit_cipher(path_to_read, path_to_write, shift_bits);
     pair<string, string> encrypted_storage = { path_to_read, "bit_shift" };
-    Logger obj;
-    obj.cipher_printlog(encrypted_storage);
+    Logger::cipher_printlog(encrypted_storage);
 }
 
 void FileProcessor::bit_decipher_actions()
@@ -248,22 +240,18 @@ void FileProcessor::bit_decipher_actions()
     string path_to_read;
     string path_to_write;
     int shift_bits;
-    FileProcessor file_processor;
     cout << "Enter the path to the file you want to decrypt: " << endl;
     cin >> path_to_read;
     cout << "Enter the path to the file where you want to write the decrypted file: " << endl;
     cin >> path_to_write;
     cout << "Enter the shift of bits: " << endl;
     cin >> shift_bits;
-    file_processor.file_bit_decipher(path_to_read, path_to_write, shift_bits);
+    FileProcessor::file_bit_decipher(path_to_read, path_to_write, shift_bits);
 }
 
 void FileProcessor::file_bit_cipher(const string& path_read, const string& path_write, int sh)
 {
-    string file_for_write = path_write;
-    string file_for_read = path_read;
-
-    ifstream in(file_for_read, ios::binary | ios::in);
+    ifstream in(path_read, ios::binary | ios::in);
     if (in.is_open()) {
         cout << "File was opend!" << endl;
     }
@@ -271,7 +259,7 @@ void FileProcessor::file_bit_cipher(const string& path_read, const string& path_
         cout << "File was not opend!" << endl;
     }
 
-    ofstream out(file_for_write, ios::binary | ios::out);
+    ofstream out(path_write, ios::binary | ios::out);
     if (out.is_open()) {
         cout << "File was opend!" << endl;
     }

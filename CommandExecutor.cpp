@@ -1,10 +1,12 @@
 #include"CommandExecutor.h"
 #include <string>
+#include<array>
+
 using namespace std;
 
 string CommandExecutor::execute(const string &command) {
-    char buffer[128];
-    string result = "";
+    array<char, 128> buffer;
+    string result;
 
     // Open pipe to file
     FILE* pipe = popen(command.c_str(), "r");
@@ -16,8 +18,11 @@ string CommandExecutor::execute(const string &command) {
     while (!feof(pipe)) {
 
         // use buffer to read and add to result
-        if (fgets(buffer, 128, pipe) != NULL)
-            result += buffer;
+        if (fgets(buffer.data(), buffer.size(), pipe) != nullptr)
+        {
+            result += buffer.data();
+        }
+            
     }
 
     pclose(pipe);

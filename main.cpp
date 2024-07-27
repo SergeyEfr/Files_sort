@@ -7,6 +7,11 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
+    cout << "Number of parameters: " << argc << endl;
+    if (argc == 1)
+    {
+        cout << "Usage: ./linux2.out [sort/xor_encrypt/xor_decrypt/bit_encrypt/bit_decrypt]" << endl;
+    }
     string arg = argv[1];
     if (arg == "sort") 
     {
@@ -38,7 +43,6 @@ int main(int argc, char *argv[])
     {
         cerr << "Unknown mode: " << arg << endl;
     }
-
     return 0;
 }
 
